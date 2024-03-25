@@ -58,6 +58,7 @@ def cleanText(df):
     df = df[df['WC']>=4]
     df.drop('WC', axis = 1, inplace = True)
     df.reset_index(inplace = True, drop = True)
+    df.drop_duplicates(inplace = True)
     return df
 
 def cleanRepeat(text, repetition_threshold=3):
