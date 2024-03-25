@@ -8,6 +8,9 @@ from nltk.stem import WordNetLemmatizer
 from html import unescape
 import pandas as pd
 
+def train_test_split(df):
+    
+
 def cleanString(text, url_pattern, ftp_pattern, punctuation_set):
     t = re.sub(url_pattern, ' ', text)  # remove urls if any
     t = re.sub(ftp_pattern, ' ', t)  # remove urls if any
@@ -42,15 +45,6 @@ def cleanString(text, url_pattern, ftp_pattern, punctuation_set):
     return cleaned_text
 
 def cleanText(df):
-    df = df[~((df['text'].str.contains('bitcoin going', flags=re.IGNORECASE)) &
-        ~(df['text'].str.contains('bitcoin okay bro', flags=re.IGNORECASE)) &
-        ~(df['text'].str.contains('explode', flags=re.IGNORECASE)) &
-        ~(df['text'].str.contains('know going', flags=re.IGNORECASE)) &
-        ~(df['text'].str.contains('bitcoin k loading', flags=re.IGNORECASE)) &
-        ~(df['text'].str.contains('full audit usdc', flags=re.IGNORECASE)) &
-        ~(df['text'].str.contains('record didnt need', flags=re.IGNORECASE)) &
-        ~(df['text'].str.contains('squawkcnbc jerrymoran bitcoin', flags=re.IGNORECASE)))]
-    
     # Compile the regular expressions
     url_pattern = re.compile(r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+')
     ftp_pattern = re.compile(r'ftp[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+')

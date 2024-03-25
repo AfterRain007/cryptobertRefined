@@ -19,15 +19,28 @@ def main():
     # text = googleTranslate(text, 'id', translate_client)
 
     df = pd.read_csv("./data/sentiment.csv", usecols=['text', 'sen'])
+
+    
     sen = df['sen']
-    augmented = pd.DataFrame()
+    augmentedGoogleTranslate = pd.DataFrame()
     
     for lang in (langList1 + langList2):
         text = dfTrain['text'].apply(translateBby, args=(x,))
         temp = pd.DataFrame(text)
         temp['sen'] = sen
         temp['lang'] = lang
-        augmented = augmented.append([augmented, temp])
+        augmentedGoogleTranslate = augmentedGoogleTranslate.append([augmentedGoogleTranslate, temp])
+
+    augmentedTransformers = pd.DataFrame()
+    for lang in (langList3):
+        text = dfTrain['text'].apply(translateBby, args=(x,))
+        temp = pd.DataFrame(text)
+        temp['sen'] = sen
+        temp['lang'] = lang
+        augmentedTransformers = augmentedTransformers.append([augmentedTransformers, temp])
+
+
+
 
     
     # df = cleanText(df)
