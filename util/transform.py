@@ -6,20 +6,9 @@ from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 from nltk.stem import WordNetLemmatizer
 from html import unescape
+import pandas as pd
 
-nltk.download('punkt')
-nltk.download('stopwords')
-nltk.download('wordnet')
-nltk.download('omw-1.4')
-
-# Compile the regular expressions
-url_pattern = re.compile(r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+')
-ftp_pattern = re.compile(r'ftp[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+')
-
-# Set of punctuation characters
-punctuation_set = set(string.punctuation)
-
-def cleanString(text):
+def cleanString(text, url_pattern, ftp_pattern, punctuation_set):
     t = re.sub(url_pattern, ' ', text)  # remove urls if any
     t = re.sub(ftp_pattern, ' ', t)  # remove urls if any
     t = unescape(t)  # html entities fix
@@ -53,62 +42,28 @@ def cleanString(text):
     return cleaned_text
 
 def cleanText(df):
-    df = df[(~df['text'].str.contains('Compared to the last tweet, the price has', flags=re.IGNORECASE)) &
-            (~df['text'].str.contains('In the last 24 hours the price has', flags=re.IGNORECASE)) &
-            (~df['text'].str.contains('transferred from Unknown Wallet to Unknown Wallet', flags=re.IGNORECASE)) &
-            (~df['text'].str.contains('Market Cap. Swap', flags=re.IGNORECASE)) &
-            (~df['text'].str.contains('Bitcoin BTC Current Price:', flags=re.IGNORECASE)) &
-            (~df['text'].str.contains('Current #Bitcoin Price is', flags=re.IGNORECASE)) &
-            (~df['text'].str.contains('Bitcoin Whale Alert:', flags=re.IGNORECASE)) &
-            (~df['text'].str.contains('tx with a value of', flags=re.IGNORECASE)) &
-            (~df['text'].str.contains('will be transfered from', flags=re.IGNORECASE)) &
-            (~df['text'].str.contains('Someone just transfered', flags=re.IGNORECASE)) &
-            (~df['text'].str.contains('is a super underrated bitcoiner I’ve been following', flags=re.IGNORECASE)) &
-            (~df['text'].str.contains('has been transfered to an', flags=re.IGNORECASE)) &
-            (~df['text'].str.contains('transferred from unknown wallet to', flags=re.IGNORECASE)) &
-            (~df['text'].str.contains('Someone just transfered', flags=re.IGNORECASE)) &
-            (~df['text'].str.contains('is a super underrated bitcoiner I’ve been following her tweets and tips', flags=re.IGNORECASE)) &
-            (~df['text'].str.contains('Market Cap. Swap', flags=re.IGNORECASE)) &
-            (~df['text'].str.contains('Bitcoin BTC Current Price:', flags=re.IGNORECASE)) &
-            (~df['text'].str.contains('Current #Bitcoin Price is', flags=re.IGNORECASE)) &
-            (~df['text'].str.contains('Bitcoin Whale Alert:', flags=re.IGNORECASE)) &
-            (~df['text'].str.contains('will be transfered from', flags=re.IGNORECASE)) &
-            (~df['text'].str.contains('#bitcoin SHORTED', flags=re.IGNORECASE)) &
-            (~df['text'].str.contains('tx with a value of', flags=re.IGNORECASE)) &
-            (~df['text'].str.contains('#bitcoin LONGED', flags=re.IGNORECASE)) &
-            (~df['text'].str.contains('move from unknown wallet to', flags=re.IGNORECASE)) &
-            (~df['text'].str.contains('BTC - short alert', flags=re.IGNORECASE)) &
-            (~df['text'].str.contains('1 BTC Price: Bitstamp', flags=re.IGNORECASE)) &
-            (~df['text'].str.contains('Trending Crypto Alert!', flags=re.IGNORECASE)) &
-            (~df['text'].str.contains('#Bitcoin mempool Tx summary in the last 60 seconds', flags=re.IGNORECASE)) &
-            (~df['text'].str.contains('BEARWHALE! just SHORTED', flags=re.IGNORECASE)) &
-            (~df['text'].str.contains('Buyer alert:', flags=re.IGNORECASE)) &
-            (~df['text'].str.contains('#Bitcoin Price:', flags=re.IGNORECASE)) &
-            (~df['text'].str.contains('Based on #coindesk BPI #bitcoin', flags=re.IGNORECASE)) &
-            (~df['text'].str.contains('BTCUSDT LONGED', flags=re.IGNORECASE)) &
-            (~df['text'].str.contains('Everywhere should follow @', flags=re.IGNORECASE)) &
-            (~df['text'].str.contains('BULLWHALE! just LONGED', flags=re.IGNORECASE)) &
-            (~df['text'].str.contains('Long Position Taken On $', flags=re.IGNORECASE)) &
-            (~df['text'].str.contains("A new block was found on the #Bitcoin network. We're at block height", flags=re.IGNORECASE)) &
-            (~df['text'].str.contains('current #bitcoin price is', flags=re.IGNORECASE)) &
-            (~df['text'].str.contains('today and watch your life turn around, start earning', flags=re.IGNORECASE)) &
-            (~df['text'].str.contains('Symbol: BTCUSD (Binance)', flags=re.IGNORECASE, regex=False)) &
-            (~df['text'].str.contains('Current  #Bitcoin Price:', flags=re.IGNORECASE)) &
-            (~df['text'].str.contains('transferred from #Coinbase to unknown wallet', flags=re.IGNORECASE)) &
-            (~df['text'].str.contains('SCAN RESULTS - 15m - #BTC PAIR', flags=re.IGNORECASE)) &
-            (~df['text'].str.contains('$BTC Latest Block Info: Block', flags=re.IGNORECASE)) &
-            (~df['text'].str.contains('Scan results - #Gateio - 15m', flags=re.IGNORECASE)) &
-            (~df['text'].str.contains('BTCUSD LONGED @', flags=re.IGNORECASE)) &
-            (~df['text'].str.contains('Follow for recent Bitcoin price updates.', flags=re.IGNORECASE)) &
-            (~df['text'].str.contains('1 BTC Price: Bitstamp', flags=re.IGNORECASE)) &
-            (~df['text'].str.contains('The current price of bitcoin is $', flags=re.IGNORECASE)) &
-            (~df['text'].str.contains('Symbol:|Signal:|Price:|Volume:', flags=re.IGNORECASE)) &
-            (~df['text'].str.contains('Deal Close:|Entry:|Entry Price:', flags=re.IGNORECASE)) &
-            (~df['text'].str.contains('Scan results - | - 15m', flags=re.IGNORECASE))]
+    df = df[~((df['text'].str.contains('bitcoin going', flags=re.IGNORECASE)) &
+        ~(df['text'].str.contains('bitcoin okay bro', flags=re.IGNORECASE)) &
+        ~(df['text'].str.contains('explode', flags=re.IGNORECASE)) &
+        ~(df['text'].str.contains('know going', flags=re.IGNORECASE)) &
+        ~(df['text'].str.contains('bitcoin k loading', flags=re.IGNORECASE)) &
+        ~(df['text'].str.contains('full audit usdc', flags=re.IGNORECASE)) &
+        ~(df['text'].str.contains('record didnt need', flags=re.IGNORECASE)) &
+        ~(df['text'].str.contains('squawkcnbc jerrymoran bitcoin', flags=re.IGNORECASE)))]
     
-    df['text'] = df['text'].apply(cleanString)
-    df['WC'] = df['text'].apply(lambda x: len(x.split()))
+    # Compile the regular expressions
+    url_pattern = re.compile(r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+')
+    ftp_pattern = re.compile(r'ftp[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+')
+    
+    # Set of punctuation characters
+    punctuation_set = set(string.punctuation)
+
+    df['text'] = df['text'].apply(cleanString, args = (url_pattern, ftp_pattern, punctuation_set, ))
+
+    df.loc[:,   'WC'] = df['text'].apply(lambda x: len(x.split()))
     df = df[df['WC']>=4]
+    df.drop('WC', axis = 1, inplace = True)
+    df.reset_index(inplace = True, drop = True)
     return df
 
 def cleanRepeat(text, repetition_threshold=3):
@@ -124,3 +79,14 @@ def cleanRepeat(text, repetition_threshold=3):
     # Return True if a match is found, indicating repeating words
     return match is not None
 
+def sentimentScore(review, maxLength = 128, device = "cpu"):
+    # Tokenize the review outside the loop
+    tokens = tokenizer(review, return_tensors='pt', max_length = maxLength, truncation = True).input_ids.to(device)
+
+    # Pass the tokens directly to the model for batch processing
+    result = model(tokens)
+
+    # Convert the tensor to a numpy array and extract the predicted sentiment
+    sentiment = int(torch.argmax(result.logits)) - 1
+
+    return sentiment
