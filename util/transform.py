@@ -7,10 +7,7 @@ from nltk.tokenize import word_tokenize
 from nltk.stem import WordNetLemmatizer
 from html import unescape
 import pandas as pd
-
-def train_test_split(df):
     
-
 def cleanString(text, url_pattern, ftp_pattern, punctuation_set):
     t = re.sub(url_pattern, ' ', text)  # remove urls if any
     t = re.sub(ftp_pattern, ' ', t)  # remove urls if any
@@ -20,14 +17,14 @@ def cleanString(text, url_pattern, ftp_pattern, punctuation_set):
     text = t.lower()
 
     # Remove punctuation
-    text = ''.join(char for char in text if char not in punctuation_set)
+    # text = ''.join(char for char in text if char not in punctuation_set)
 
     # Tokenization
     tokens = word_tokenize(text)
 
     # Remove stopwords
     stop_words = set(stopwords.words("english"))
-    tokens = [token for token in tokens if token not in stop_words]
+    # tokens = [token for token in tokens if token not in stop_words]
 
     # Remove special characters and numbers
     tokens = [re.sub(r"[^a-zA-Z]", "", token) for token in tokens]

@@ -14,36 +14,37 @@ def main():
     # Language Code for Back-Translation using Transformers
     langList3 = ['zh', 'es', 'ru', 'jap', 'de', 'fr', 'it', 'id']
 
-    key = "./data/keyME.json"
-    translate_client = googleTranslateKey(key)
+    # key = "./data/keyME.json"
+    # translate_client = googleTranslateKey(key)
     # text = googleTranslate(text, 'id', translate_client)
 
     df = pd.read_csv("./data/sentiment.csv", usecols=['text', 'sen'])
 
     
-    sen = df['sen']
-    augmentedGoogleTranslate = pd.DataFrame()
+    # sen = df['sen']
+    # augmentedGoogleTranslate = pd.DataFrame()
     
-    for lang in (langList1 + langList2):
-        text = dfTrain['text'].apply(translateBby, args=(x,))
-        temp = pd.DataFrame(text)
-        temp['sen'] = sen
-        temp['lang'] = lang
-        augmentedGoogleTranslate = augmentedGoogleTranslate.append([augmentedGoogleTranslate, temp])
+    # for lang in (langList1 + langList2):
+    #     text = dfTrain['text'].apply(translateBby, args=(x,))
+    #     temp = pd.DataFrame(text)
+    #     temp['sen'] = sen
+    #     temp['lang'] = lang
+    #     augmentedGoogleTranslate = augmentedGoogleTranslate.append([augmentedGoogleTranslate, temp])
 
-    augmentedTransformers = pd.DataFrame()
-    for lang in (langList3):
-        text = dfTrain['text'].apply(translateBby, args=(x,))
-        temp = pd.DataFrame(text)
-        temp['sen'] = sen
-        temp['lang'] = lang
-        augmentedTransformers = augmentedTransformers.append([augmentedTransformers, temp])
+    # augmentedTransformers = pd.DataFrame()
+    # for lang in (langList3):
+    #     text = dfTrain['text'].apply(translateBby, args=(x,))
+    #     temp = pd.DataFrame(text)
+    #     temp['sen'] = sen
+    #     temp['lang'] = lang
+    #     augmentedTransformers = augmentedTransformers.append([augmentedTransformers, temp])
 
 
 
 
     
-    # df = cleanText(df)
+    df = cleanText(df)
+    print(df.head())
     # print(df['sen'].value_counts())
 
     
