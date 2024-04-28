@@ -20,7 +20,6 @@ def main():
 
     df = pd.read_csv("./data/sentiment.csv", usecols=['text', 'sen'])
 
-    
     # sen = df['sen']
     # augmentedGoogleTranslate = pd.DataFrame()
     
@@ -39,16 +38,11 @@ def main():
     #     temp['lang'] = lang
     #     augmentedTransformers = augmentedTransformers.append([augmentedTransformers, temp])
 
-
-
-
-    
-    df = cleanText(df)
+    df = cleanText2(df)
     print(df.head())
     # print(df['sen'].value_counts())
 
-    
-    
+
 
 if __name__ == "__main__":
     main()

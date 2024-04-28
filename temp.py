@@ -33,7 +33,7 @@ class TweetData:
         # Remove punctuation
         self.data['text'] = self.data['text'].str.replace('[{}]'.format(string.punctuation), "", regex=True)
 
-        # # Remove stopwords
+        # Remove stopwords
         stop_words = set(stopwords.words("english"))
         self.data['text'] = self.data['text'].apply(lambda x: ' '.join([word for word in x.split() if word not in stop_words]))
 
@@ -48,53 +48,13 @@ class TweetData:
 
         # No need to return anything as modifications are done in-place
 
-
-    def cleanString(self, url_pattern = url_pattern, ftp_pattern = ftp_pattern, punctuation_set = punctuation_set):
-        t = unescape(t)  # html entities fix
-
-        # Convert text to lowercase
-        text = t.lower()
-
-        # Remove punctuation
-        text = ''.join(char for char in text if char not in punctuation_set)
-
-        # Tokenization
-        tokens = word_tokenize(text)
-
-        # Remove stopwords
-        stop_words = set(stopwords.words("english"))
-        tokens = [token for token in tokens if token not in stop_words]
-
-        # Remove special characters and numbers
-        tokens = [re.sub(r"[^a-zA-Z]", "", token) for token in tokens]
-
-        # Lemmatization
-        lemmatizer = WordNetLemmatizer()
-        tokens = [lemmatizer.lemmatize(token) for token in tokens]
-
-        # Remove unnecessary spaces
-        tokens = [token.strip() for token in tokens if token.strip()]
-
-        # Join tokens back into a single string
-        cleaned_text = " ".join(tokens)
-    
-    def cleanText(self):
-
-        self.data['text'] = self.data['text'].apply(self.cleanString)
-
-        self.data.loc[:, 'WC'] = self.data['text'].apply(lambda x: len(x.split()))
-        self.data = self[self['WC']>=4]
-        self.data.drop('WC', axis = 1, inplace = True)
-        self.data.reset_index(inplace = True, drop = True)
-        self.data.drop_duplicates(inplace = True)
-        return self.data
-
 # Load your CSV data
 tweet_data = TweetData(pd.read_csv("./data/sentiment.csv"))
 
 # print(tweet_data.data.head())
 # Clean text data
 tweet_data.cleanText2()
+
 print(tweet_data.data.head())
 
 # # Augment data
