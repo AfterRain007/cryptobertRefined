@@ -4,8 +4,10 @@ from ray import tune
 from ray.tune import CLIReporter
 from ray.tune.examples.pbt_transformers.utils import build_compute_metrics_fn
 from ray.tune.schedulers import PopulationBasedTraining
-from transformers import Trainer, TrainingArguments, EarlyStoppingCallback
+from transformers import Trainer, TrainingArguments, EarlyStoppingCallback, AutoTokenizer, AutoModelForSequenceClassification
 import random
+import torch
+import os
 
 def importAugmentedData():
     langCodeGT = ['it', 'fr', 'sv', 'da', 'pt',
@@ -36,7 +38,7 @@ def importAugmentedData():
     
     return dfGT20, dfGT10, dfHNLP
 
-def prepData(dfTrain, dfVal, tokenSize):
+def prepData(dfTrain, dfVal, tokenizer, tokenSize = 128):
     class dataSet(torch.utils.data.Dataset):
         def __init__(self, encodings, labels):
             self.encodings = encodings
@@ -53,8 +55,8 @@ def prepData(dfTrain, dfVal, tokenSize):
     dfTrain['sen'] = dfTrain['sen'] + 1
     dfVal['sen'] = dfVal['sen'] + 1
 
-    train_encodings = tokenizer(dfTrain['text'].tolist(), max_length = size, truncation=True, padding=True)
-    val_encodings = tokenizer(dfVal['text'].tolist(), max_length = size, truncation=True, padding=True)
+    train_encodings = tokenizer(dfTrain['text'].tolist(), max_length = tokenSize, truncation=True, padding=True)
+    val_encodings = tokenizer(dfVal['text'].tolist(), max_length = tokenSize, truncation=True, padding=True)
 
     train_dataset = dataSet(train_encodings, dfTrain['sen'].tolist())
     val_dataset = dataSet(val_encodings, dfVal['sen'].tolist())
@@ -62,13 +64,14 @@ def prepData(dfTrain, dfVal, tokenSize):
     return train_dataset, val_dataset
 
 def initialize(dfTrain, dfVal, modelName):
+    f = open("./data/cryptoVocab.txt", "r")
+    crypto_vocabulary = f.read().split(',')
+    crypto_vocabulary = [term.replace('"', '') for term in crypto_vocabulary]
 
     if (modelName == "cardiffnlp/twitter-roberta-base-sentiment-latest") | (modelName == "cardiffnlp/twitter-xlm-roberta-base-sentiment"):
         tokenSize = 256
     else:
         tokenSize = 128
-
-    dfTrain, dfVal = prepData(dfTrain, dfVal, tokenSize)
 
     tokenizer = AutoTokenizer.from_pretrained(modelName)
 
@@ -78,6 +81,8 @@ def initialize(dfTrain, dfVal, modelName):
         new_tokens = set(crypto_vocabulary) - set(tokenizer.get_vocab().keys())
 
     tokenizer.add_tokens(list(new_tokens))
+
+    dfTrain, dfVal = prepData(dfTrain, dfVal, tokenizer, tokenSize)
 
     return dfTrain, dfVal, tokenizer
 
@@ -149,7 +154,7 @@ def start(modelName, train_dataset, val_dataset):
     torch.cuda.empty_cache()
 
     trainer = Trainer(
-        model_init=get_model,
+        model_init=get_model(modelName),
         args=training_args,
         train_dataset=train_dataset,
         eval_dataset=val_dataset,

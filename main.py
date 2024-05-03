@@ -21,7 +21,5 @@ def main():
             dfTrain, dfVal, tokenizer = initialize(dfTrain, dfVal, modelName)
             start(modelName, dfTrain, dfVal)
 
-
-
 if __name__ == "__main__":
     main()
