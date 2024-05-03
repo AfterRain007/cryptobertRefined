@@ -7,11 +7,11 @@ from nltk.stem import WordNetLemmatizer
 from html import unescape
 
 # Uncomment if you haven't download
-# import nltk
-# nltk.download('punkt')
-# nltk.download('stopwords')
-# nltk.download('wordnet')
-# nltk.download('omw-1.4')
+import nltk
+nltk.download('punkt')
+nltk.download('stopwords')
+nltk.download('wordnet')
+nltk.download('omw-1.4')
 
 def importData(fileName):
     df = pd.read_csv(f"./data/{fileName}", usecols=['text', 'sen'])
@@ -70,8 +70,10 @@ def cleanText(df):
     df['text'] = df['text'].apply(clean_text, args = (url_pattern, ftp_pattern, punctuation_set, ))
 
     # Deleting text with lower than 4 word because it is deemed to have low context
+    # And deleting text with 3 repeating words because it is deemed to be spam.
     df['WC'] = df['text'].apply(lambda x: len(x.split()))
-    df = df[~((df['WC'] < 4) & ((df['sen'] == 1) | (df['sen'] == 0)))].sort_values(by=['WC'])
+    df['spam'] = df['text'].apply(hasRepeatingWord)
+    df = df[(df['spam'] == False) & ~((df['WC'] < 4) & ((df['sen'] == 1) | (df['sen'] == 0)))]
 
     #Further cleaning (I goes through it manually)
     df = df[~((df['text'].str.contains('bitcoin going', flags=re.IGNORECASE)) &
@@ -85,6 +87,19 @@ def cleanText(df):
         ((df['sen'] != -1) | (df['WC'] > 4)))]
 
     return df[['text', 'sen']]
+
+def hasRepeatingWord(text, repetition_threshold=3):
+    # Find all words in the text
+    words = re.findall(r'\b\w+\b', text.lower())
+
+    # Create a regular expression pattern for detecting repeating words
+    pattern = r'\b(\w+)' + r'(\s+\1){%d,}\b' % (repetition_threshold - 1)
+
+    # Search for the pattern in the text
+    match = re.search(pattern, ' '.join(words))
+
+    # Return True if a match is found, indicating repeating words
+    return match is not None
 
 def partitioning(df, sample_size = 100):
     dfM1 = df[df['sen'] == -1].sample(sample_size)
@@ -103,40 +118,3 @@ def partitioning(df, sample_size = 100):
     val.reset_index(inplace = True, drop = True)
 
     return df, test, val
-
-def has_repeating_word(text, repetition_threshold=3):
-    # Find all words in the text
-    words = re.findall(r'\b\w+\b', text.lower())
-
-    # Create a regular expression pattern for detecting repeating words
-    pattern = r'\b(\w+)' + r'(\s+\1){%d,}\b' % (repetition_threshold - 1)
-
-    # Search for the pattern in the text
-    match = re.search(pattern, ' '.join(words))
-
-    # Return True if a match is found, indicating repeating words
-    return match is not None
-
-def importAugmentedData():
-    langCodeGT = ['it', 'fr', 'sv', 'da', 'pt',
-                  'id', 'pl', 'hr', 'bg', 'fi',
-                  'no', 'ru', 'es', 'nl', 'af',
-                  'de', 'sk', 'cs', 'lv', 'sq']
-    
-    dfGT20 = pd.DataFrame()
-    for lang in langCodeGT:
-        temp = pd.read_csv(f'./augmented_data/dfTrain-{lang}GT.csv')
-        dfGT20 = pd.concat([dfGT20, temp])
-    
-    dfGT10 = dfGT20[:int(len(dfGT20)/2)].copy()
-    
-    langCodeHNLP = ['zh', 'es', 'ru', 'jap', 
-                    'de', 'fr', 'it', 'id']
-    
-    dfHNLP = pd.DataFrame()
-    for lang in langCodeHNLP:
-        temp = pd.read_csv(f'./augmented_data/dfTrain-{lang}HNLP.csv')
-        dfHNLP = pd.concat([dfHNLP, temp])
-
-    return dfGT20, dfGT10, dfHNLP
-    
