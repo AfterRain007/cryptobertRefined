@@ -18,7 +18,6 @@ langCode = ['it', 'fr', 'sv', 'da', 'pt',
 # German, Slovak, Czech, Latvian, and Albanian
 
 def backTranslate(text, lan):
-    return 0
-#   temp = translate_client.translate(text,lan)['translatedText']
+  temp = translate_client.translate(text,lan)['translatedText']
 
-#   return translate_client.translate(temp,'en')['translatedText']
+  return translate_client.translate(temp,'en')['translatedText']

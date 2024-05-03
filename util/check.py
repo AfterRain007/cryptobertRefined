@@ -1,14 +1,14 @@
 import os
 
-langCodeGT = ['it', 'fr', 'sv', 'da', 'pt',
-              'id', 'pl', 'hr', 'bg', 'fi',
-              'no', 'ru', 'es', 'nl', 'af',
-              'de', 'sk', 'cs', 'lv', 'sq']
+def checkFile():
+    langCodeGT = ['it', 'fr', 'sv', 'da', 'pt',
+                  'id', 'pl', 'hr', 'bg', 'fi',
+                  'no', 'ru', 'es', 'nl', 'af',
+                  'de', 'sk', 'cs', 'lv', 'sq']
 
-langCodeHNLP = ['zh', 'es', 'ru', 'jap', 
-                'de', 'fr', 'it', 'id']
-
-def check_files():
+    langCodeHNLP = ['zh', 'es', 'ru', 'jap', 
+                    'de', 'fr', 'it', 'id']
+    
     for lang in langCodeGT:
         if not os.path.exists(f"./augmented_data/dfTrain-{lang}GT.csv"):
             return False
@@ -19,4 +19,7 @@ def check_files():
     
     return True
 
-print(check_files())
+def checkAugment():
+    if checkFile == False:
+        from augmentation import augment
+        augment()

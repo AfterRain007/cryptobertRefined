@@ -13,8 +13,8 @@ from html import unescape
 # nltk.download('wordnet')
 # nltk.download('omw-1.4')
 
-def importData(DIR):
-    df = pd.read_csv(DIR + "Sentiment.csv", usecols=['text', 'sen'])
+def importData(fileName):
+    df = pd.read_csv(f"./data/{fileName}", usecols=['text', 'sen'])
 
     # # Data from SurgeAI, I already emailed them to publish the dataset in here but they haven't reply to my email yet
     # SurgeAI = pd.read_csv(DIR+"Crypto Sentiment Dataset.csv", usecols=['Comment Text', 'Sentiment'])
@@ -84,8 +84,6 @@ def cleanText(df):
         ~(df['text'].str.contains('squawkcnbc jerrymoran bitcoin', flags=re.IGNORECASE)) &
         ((df['sen'] != -1) | (df['WC'] > 4)))]
 
-    df.reset_index(inplace = True, drop = True)
-
     return df[['text', 'sen']]
 
 def partitioning(df, sample_size = 100):
@@ -101,8 +99,44 @@ def partitioning(df, sample_size = 100):
     val = pd.concat([dfM1, df0, df1])
     df = df.drop(val.index)
 
-    df.reset_index(inplace = True, drop = True)
     test.reset_index(inplace = True, drop = True)
     val.reset_index(inplace = True, drop = True)
 
     return df, test, val
+
+def has_repeating_word(text, repetition_threshold=3):
+    # Find all words in the text
+    words = re.findall(r'\b\w+\b', text.lower())
+
+    # Create a regular expression pattern for detecting repeating words
+    pattern = r'\b(\w+)' + r'(\s+\1){%d,}\b' % (repetition_threshold - 1)
+
+    # Search for the pattern in the text
+    match = re.search(pattern, ' '.join(words))
+
+    # Return True if a match is found, indicating repeating words
+    return match is not None
+
+def importAugmentedData():
+    langCodeGT = ['it', 'fr', 'sv', 'da', 'pt',
+                  'id', 'pl', 'hr', 'bg', 'fi',
+                  'no', 'ru', 'es', 'nl', 'af',
+                  'de', 'sk', 'cs', 'lv', 'sq']
+    
+    dfGT20 = pd.DataFrame()
+    for lang in langCodeGT:
+        temp = pd.read_csv(f'./augmented_data/dfTrain-{lang}GT.csv')
+        dfGT20 = pd.concat([dfGT20, temp])
+    
+    dfGT10 = dfGT20[:int(len(dfGT20)/2)].copy()
+    
+    langCodeHNLP = ['zh', 'es', 'ru', 'jap', 
+                    'de', 'fr', 'it', 'id']
+    
+    dfHNLP = pd.DataFrame()
+    for lang in langCodeHNLP:
+        temp = pd.read_csv(f'./augmented_data/dfTrain-{lang}HNLP.csv')
+        dfHNLP = pd.concat([dfHNLP, temp])
+
+    return dfGT20, dfGT10, dfHNLP
+    

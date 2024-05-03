@@ -1,6 +1,9 @@
-import pandas as pd
+from util.preprocessing import *
 
-class testing:
-    def __init__(self):
-        self.X = []
+fileName = "Sentiment.csv"
+df = importData(fileName)
+dfClean = cleanText(df)
 
+train, test, val = partitioning(dfClean, 100)
+
+print(len())
