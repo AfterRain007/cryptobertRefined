@@ -173,4 +173,46 @@ def start(modelName, train_dataset, val_dataset):
         local_dir="./ray_results/",
         name="tune_transformer_pbt",
         log_to_file=True,
-    ) 
+    )
+
+    return 0
+
+def saveResult(dataName, modelName):
+    source_directory = "./ray_results/tune_transformer_pbt/"
+    usedcols = ['eval_loss', 'eval_acc', 'eval_runtime', 'eval_samples_per_second', 'eval_steps_per_second', 'epoch', 'time_this_iter_s', 'training_iteration']
+    folders = [f for f in os.listdir(source_directory) if os.path.isdir(os.path.join(source_directory , f))]
+
+    tempDf = pd.DataFrame()
+
+    for i, folder in enumerate(folders):
+        source_file_path = os.path.join(source_directory, folder)
+
+        with open(source_file_path+"/params.json", 'r') as f:
+            data = json.load(f)
+
+        temp = pd.read_csv(source_file_path+"/progress.csv", usecols = usedcols)
+        temp2 = pd.DataFrame([data])
+
+        source_file_path = get_first_subfolder(source_file_path)
+        source_file_path = get_first_subfolder(source_file_path)
+
+        model = AutoModelForSequenceClassification.from_pretrained(source_file_path)
+        model.to(device)
+        model.resize_token_embeddings(len(tokenizer))
+
+        dfTest['sen_2'] = dfTest['text'].apply(sentiment_score, args=(model,))
+        same_values_count = (dfTest['sen'] == dfTest['sen_2']).sum()
+        Accuracy = same_values_count/len(dfTest)
+
+        temp2['testAccuracy'] = Accuracy
+        temp = pd.concat([temp, temp2], axis = 1)
+        tempDf = pd.concat([tempDf, temp])
+
+    destination_directory = "./Result"
+
+    if os.path.exists(destination_directory) == False:
+        os.makedirs(destination_directory)
+
+    tempDf.to_csv(f"result_{dataName}_{modelName}.csv")
+
+    return 0

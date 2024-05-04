@@ -13,13 +13,18 @@ def main():
                  "cardiffnlp/twitter-xlm-roberta-base-sentiment"    
                 ]
 
+    dataList = ["dfGT20",
+                "dfGT10",
+                "dfHNLP"]
+
     dfVal = pd.read_csv("./data/dfVal.csv")
     dfTest = pd.read_csv("./data/dfTest.csv")
 
-    for dfTrain in importAugmentedData():
+    for i, dfTrain in enumerate(importAugmentedData()):
         for modelName in modelList:
             dfTrain, dfVal, tokenizer = initialize(dfTrain, dfVal, modelName)
             start(modelName, dfTrain, dfVal)
+            saveResult(dataList[i], modelName)
 
 if __name__ == "__main__":
     main()
