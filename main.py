@@ -3,8 +3,7 @@ from util.finetune import *
 from util.preprocessing import cleanText
 
 def main():
-    # To check if data augmented file is there
-    # If not then do augmentation.
+    # To check if data augmented file is there, if not then do augmentation.
     checkAugment()
 
     modelList = ["cardiffnlp/twitter-roberta-base-sentiment-latest",

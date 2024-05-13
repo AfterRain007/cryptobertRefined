@@ -17,6 +17,7 @@ def augment():
     test.to_csv("./data/dfTest.csv")
     val.to_csv("./data/dfVal.csv")
 
+    # # Data augmentation using Google Translate
     # langCodeGT = ['it', 'fr', 'sv', 'da', 'pt',
     #               'id', 'pl', 'hr', 'bg', 'fi',
     #               'no', 'ru', 'es', 'nl', 'af',
@@ -28,12 +29,13 @@ def augment():
     #     temp['sen'] = train['sen']
     #     temp.to_csv(f'./augmented_data/dfTrain-{lang}GT.csv', index = False)
 
-    # langCodeHNLP = ['zh', 'es', 'ru', 'jap', 
-    #                 'de', 'fr', 'it', 'id']
+    # Data augmentation using Transformers (Helsinki NLP)
+    langCodeHNLP = ['zh', 'es', 'ru', 'jap', 
+                    'de', 'fr', 'it', 'id']
 
-    # for lang in langCodeHNLP:
-    #     model1, tokenizer1, model2, tokenizer2 = initializeModel(lang)
-    #     temp = train['text'].apply(backTranslateHNLP, args=(model1, tokenizer1, model2, tokenizer2,))
-    #     temp = pd.DataFrame(temp)
-    #     temp['sen'] = train['sen']
-    #     temp.to_csv(f'./augmented_data/dfTrain-{lang}HNLP.csv', index = False)
+    for lang in langCodeHNLP:
+        model1, tokenizer1, model2, tokenizer2 = initializeModel(lang)
+        temp = train['text'].apply(backTranslateHNLP, args=(model1, tokenizer1, model2, tokenizer2,))
+        temp = pd.DataFrame(temp)
+        temp['sen'] = train['sen']
+        temp.to_csv(f'./augmented_data/dfTrain-{lang}HNLP.csv', index = False)
