@@ -4,7 +4,7 @@ from util.preprocessing import cleanText
 
 def main():
     # To check if data augmented file is there, if not then do augmentation.
-    checkAugment()
+    checkAugment(0)
 
     modelList = ["cardiffnlp/twitter-roberta-base-sentiment-latest",
                  "finiteautomata/bertweet-base-sentiment-analysis", 
@@ -17,7 +17,6 @@ def main():
                 "dfHNLP"]
 
     dfVal = pd.read_csv("./data/dfVal.csv")
-    dfTest = pd.read_csv("./data/dfTest.csv")
 
     for i, dfTrain in enumerate(importAugmentedData()):
         for modelName in modelList:

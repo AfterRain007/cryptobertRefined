@@ -10,19 +10,19 @@ import torch
 import os
 
 def importAugmentedData():
-    langCodeGT = ['it', 'fr', 'sv', 'da', 'pt',
-                  'id', 'pl', 'hr', 'bg', 'fi',
-                  'no', 'ru', 'es', 'nl', 'af',
-                  'de', 'sk', 'cs', 'lv', 'sq']
+    # langCodeGT = ['it', 'fr', 'sv', 'da', 'pt',
+    #               'id', 'pl', 'hr', 'bg', 'fi',
+    #               'no', 'ru', 'es', 'nl', 'af',
+    #               'de', 'sk', 'cs', 'lv', 'sq']
     
-    dfGT20 = pd.DataFrame()
-    for lang in langCodeGT:
-        temp = pd.read_csv(f'./augmented_data/dfTrain-{lang}GT.csv')
-        dfGT20 = pd.concat([dfGT20, temp])
+    # dfGT20 = pd.DataFrame()
+    # for lang in langCodeGT:
+    #     temp = pd.read_csv(f'./augmented_data/dfTrain-{lang}GT.csv')
+    #     dfGT20 = pd.concat([dfGT20, temp])
     
-    dfGT10 = dfGT20[:int(len(dfGT20)/2)].copy()
+    # dfGT10 = dfGT20[:int(len(dfGT20)/2)].copy()
     
-    langCodeHNLP = ['zh', 'es', 'ru', 'jap', 
+    langCodeHNLP = ['zh', 'es', 'ru', 'jap',
                     'de', 'fr', 'it', 'id']
     
     dfHNLP = pd.DataFrame()
@@ -32,11 +32,11 @@ def importAugmentedData():
 
     dfTrain = pd.read_csv("./data/dfTrain.csv")
     
-    dfGT20 = pd.concat([dfTrain, dfGT20])
-    dfGT10 = pd.concat([dfTrain, dfGT10])
+    # dfGT20 = pd.concat([dfTrain, dfGT20])
+    # dfGT10 = pd.concat([dfTrain, dfGT10])
     dfHNLP = pd.concat([dfTrain, dfHNLP])
     
-    return dfGT20, dfGT10, dfHNLP
+    return dfHNLP
 
 def prepData(dfTrain, dfVal, tokenizer, tokenSize = 128):
     class dataSet(torch.utils.data.Dataset):
