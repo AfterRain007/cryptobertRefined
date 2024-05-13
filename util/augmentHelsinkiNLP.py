@@ -2,12 +2,11 @@
 # !pip install sentencepiece -q
 # !pip install sacremoses -q
 # !pip install --upgrade tensorflow -q
-from transformers import AutoTokenizer, AutoModelForSeq2SeqLM, pipeline
-import shutil
+from transformers import AutoTokenizer, AutoModelForSeq2SeqLM #, pipeline
+# import shutil
 import torch
-import numpy as np
-import pandas as pd
-import sys
+# import numpy as np
+# import pandas as pd
 import time as time
 
 device = "cuda:0" if torch.cuda.is_available() else "cpu"
